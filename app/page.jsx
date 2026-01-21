@@ -1,105 +1,69 @@
+"use client";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { motion } from "framer-motion";
 
-export default function TaskBottleApp() {
+export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
-  const [completedCount, setCompletedCount] = useState(0);
+  const [done, setDone] = useState(0);
 
   const addTask = () => {
-    if (input.trim()) {
-      setTasks([...tasks, { text: input, done: false }]);
-      setInput("");
-    }
+    if (!input) return;
+    setTasks([...tasks, { text: input, done: false }]);
+    setInput("");
   };
 
-  const toggleTask = (index) => {
-    const newTasks = [...tasks];
-    if (!newTasks[index].done) setCompletedCount(completedCount + 1);
-    else setCompletedCount(completedCount - 1);
-    newTasks[index].done = !newTasks[index].done;
-    setTasks(newTasks);
+  const toggle = (i) => {
+    const t = [...tasks];
+    t[i].done = !t[i].done;
+    setDone(t.filter(x => x.done).length);
+    setTasks(t);
   };
-
-  const progressPercent = tasks.length
-    ? (completedCount / tasks.length) * 100
-    : 0;
-
-  const choleArray = Array.from({ length: completedCount });
 
   return (
-    <div className="p-4 max-w-xl mx-auto space-y-4">
-      <h1 className="text-2xl font-bold text-center">
-        Chole Bottle Tracker
-      </h1>
+    <div style={{ maxWidth: 400, margin: "40px auto", textAlign: "center" }}>
+      <h1>Chole Bottle Tracker</h1>
 
-      <div className="flex gap-2">
-        <Input
-          placeholder="Add a task..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <Button onClick={addTask}>Add</Button>
-      </div>
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        placeholder="Add task"
+      />
+      <button onClick={addTask}>Add</button>
 
-      <Card>
-        <CardContent className="space-y-2 py-4">
-          {tasks.map((task, idx) => (
-            <div
-              key={idx}
-              onClick={() => toggleTask(idx)}
-              className={`cursor-pointer px-3 py-1 rounded-md ${
-                task.done
-                  ? "bg-green-100 line-through"
-                  : "bg-gray-100"
-              }`}
-            >
-              {task.text}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <div className="text-center font-medium">
-        Progress: {completedCount} / {tasks.length}
-      </div>
-
-      <Progress value={progressPercent} />
-
-      <div className="relative h-64 w-32 mx-auto mt-4">
+      {tasks.map((t, i) => (
         <div
-          className="absolute inset-0 border-4 border-blue-300 rounded-b-full bg-white/80"
+          key={i}
+          onClick={() => toggle(i)}
           style={{
-            borderTopLeftRadius: 60,
-            borderTopRightRadius: 60,
+            cursor: "pointer",
+            textDecoration: t.done ? "line-through" : "none"
           }}
-        />
+        >
+          {t.text}
+        </div>
+      ))}
 
-        {choleArray.map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute left-1/2 w-4 h-4 bg-yellow-700 rounded-full"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{
-              y: Math.random() * 220 + 10,
-              opacity: 1,
-            }}
-            transition={{ delay: i * 0.1 }}
-            style={{ transform: "translateX(-50%)" }}
-          />
+      <p>{done} / {tasks.length} done</p>
+
+      <div style={{
+        height: 200,
+        width: 100,
+        margin: "auto",
+        border: "3px solid black",
+        borderRadius: "50px",
+        position: "relative"
+      }}>
+        {[...Array(done)].map((_, i) => (
+          <div key={i} style={{
+            height: 12,
+            width: 12,
+            background: "goldenrod",
+            borderRadius: "50%",
+            position: "absolute",
+            bottom: 10 + i * 14,
+            left: 40
+          }} />
         ))}
-      </div>
-
-      <div className="text-center text-sm italic text-gray-600">
-        {completedCount === tasks.length && tasks.length > 0
-          ? "Bottle bhar gaya! Tu toh legend nikla 🏆"
-          : completedCount > 0
-          ? "Aur chole daal! Tu kar sakta hai 💪"
-          : "Start kar yaar, chole akelay udasi mein hain!"}
       </div>
     </div>
   );
